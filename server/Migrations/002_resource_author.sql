@@ -1,0 +1,2 @@
+ALTER TABLE resource
+ADD COLUMN author TEXT NOT NULL;

@@ -1,0 +1,4 @@
+CREATE TABLE resource (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL UNIQUE
+);
