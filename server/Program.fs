@@ -12,6 +12,8 @@ open Giraffe
 open DbUp
 open dotenv.net
 
+open Api.Resources.Routes
+
 DotEnv.Load()
 
 let connectionString = System.Environment.GetEnvironmentVariable("CONNECTION_STRING")
@@ -95,7 +97,12 @@ let webApp =
                 route "/" >=> indexHandler "world"
                 routef "/hello/%s" indexHandler
             ]
-        setStatusCode 404 >=> text "Not Found" ]
+
+        subRoute "/api" resourceRoutes
+        
+        setStatusCode 404 >=> text "Invalid URL"
+    ]
+
 
 // ---------------------------------
 // Error handler

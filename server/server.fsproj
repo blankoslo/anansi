@@ -15,7 +15,9 @@
     <PackageReference Include="Giraffe.ViewEngine" Version="1.4.*" />
     <PackageReference Include="Npgsql" Version="9.0.3" />
   </ItemGroup>
-  <ItemGroup>
+    <ItemGroup>
+    <Compile Include="Api/Resources/ResourceHandler.fs" />
+    <Compile Include="Api/Resources/Routes.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
