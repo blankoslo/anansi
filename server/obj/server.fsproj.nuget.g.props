@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <RestoreSuccess Condition=" '$(RestoreSuccess)' == '' ">True</RestoreSuccess>
+    <RestoreTool Condition=" '$(RestoreTool)' == '' ">NuGet</RestoreTool>
+    <ProjectAssetsFile Condition=" '$(ProjectAssetsFile)' == '' ">$(MSBuildThisFileDirectory)project.assets.json</ProjectAssetsFile>
+    <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' ">/Users/sergey/.nuget/packages/</NuGetPackageRoot>
+    <NuGetPackageFolders Condition=" '$(NuGetPackageFolders)' == '' ">/Users/sergey/.nuget/packages/</NuGetPackageFolders>
+    <NuGetProjectStyle Condition=" '$(NuGetProjectStyle)' == '' ">PackageReference</NuGetProjectStyle>
+    <NuGetToolVersion Condition=" '$(NuGetToolVersion)' == '' ">6.10.0</NuGetToolVersion>
+  </PropertyGroup>
+  <ItemGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <SourceRoot Include="/Users/sergey/.nuget/packages/" />
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <PkgFSharp_Core Condition=" '$(PkgFSharp_Core)' == '' ">/Users/sergey/.nuget/packages/fsharp.core/8.0.301</PkgFSharp_Core>
+    <PkgGiraffe_ViewEngine Condition=" '$(PkgGiraffe_ViewEngine)' == '' ">/Users/sergey/.nuget/packages/giraffe.viewengine/1.4.0</PkgGiraffe_ViewEngine>
+    <PkgGiraffe Condition=" '$(PkgGiraffe)' == '' ">/Users/sergey/.nuget/packages/giraffe/6.4.0</PkgGiraffe>
+    <Pkgdotenv_net Condition=" '$(Pkgdotenv_net)' == '' ">/Users/sergey/.nuget/packages/dotenv.net/3.2.1</Pkgdotenv_net>
+    <Pkgdbup-postgresql Condition=" '$(Pkgdbup-postgresql)' == '' ">/Users/sergey/.nuget/packages/dbup-postgresql/6.0.3</Pkgdbup-postgresql>
+    <Pkgdbup Condition=" '$(Pkgdbup)' == '' ">/Users/sergey/.nuget/packages/dbup/5.0.41</Pkgdbup>
+  </PropertyGroup>
+</Project>
