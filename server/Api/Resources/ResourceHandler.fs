@@ -51,8 +51,9 @@ let getResourceById id =
         let! result =
             conn.QuerySingleOrDefaultAsync<Resource>(
                 "SELECT *
-                FROM resource
-                WHERE id = @Id", {| Id = id |}
+                 FROM resource
+                 WHERE id = @Id",
+                {| Id = id |}
             )
 
         return handleNull result
