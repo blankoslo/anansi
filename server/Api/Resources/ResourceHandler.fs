@@ -1,61 +1,95 @@
 module Api.Resources.ResourceHandler
 
-open System
 open Giraffe
-open DbUp
 open Dapper
 open Npgsql
-open System.Threading.Tasks
 
-// Resource type
 type Resource = {
     id: int
     title: string
     author: string
 }
 
-let getDbConnection () =
+let connectDb () =
     let connectionString = System.Environment.GetEnvironmentVariable("CONNECTION_STRING")
     new NpgsqlConnection(connectionString)
 
+let handleNull r =
+    match box r with
+    | null -> None
+    | _ -> Some r
+
+
+// GET
+
+let getResources =
+    task {
+        use conn = connectDb()
+        let! result = conn.QueryAsync<Resource>(
+            "SELECT *
+            FROM resource"
+        )
+
+        return result |> Seq.toList
+    }
+
+let getResourcesHandler : HttpHandler =
+    fun next ctx ->
+        task {
+            let! maybeResources = getResources
+            let handler =
+                match maybeResources with
+                | [] -> setStatusCode 404 >=> text "No resources"
+                | resources -> json resources
+
+            return! handler next ctx
+        }
+
 let getResourceById id =
     task {
-        use conn = getDbConnection()
-        return! conn.QuerySingleOrDefaultAsync<Resource option>(
-            "
-            SELECT id, title, author
-            FROM resource
-            WHERE id = @Id
-            ", {| Id = id |})
+        use conn = connectDb()
+        let! result =
+            conn.QuerySingleOrDefaultAsync<Resource>(
+                "SELECT *
+                FROM resource
+                WHERE id = @Id", {| Id = id |}
+            )
+
+        return handleNull result
     }
 
 let getResourceByIdHandler id : HttpHandler =
     fun next ctx ->
         task {
             let! maybeResource = getResourceById id
-            return!
+            let handler =
                 match maybeResource with
-                | Some resource -> json resource
-                | None -> setStatusCode 404 >=> text "Resource not found"
-                |> fun handler -> handler next ctx
+                | Some result -> json result
+                | None -> setStatusCode 404 >=> text "ResourceNotFound"
+
+            return! handler next ctx
         }
 
 
-// // DB function to insert a resource
-// let insertResourceToDb (resource: Resource) : Task<int> = task {
-//     use conn = getDbConnection()
-//     let! id =
-//         conn.ExecuteAsync(
-//             "INSERT INTO resource (title, author) VALUES (@Title, @Author) RETURNING id",
-//             resource)
-//     return id
-// }
+// POST
 
+let postResource resource =
+    task {
+        use conn = connectDb()
+        let! id =
+            conn.QuerySingleAsync<int>(
+                "INSERT INTO resource (title, author)
+                 VALUES (@Title, @Author)
+                 RETURNING id",
+                resource
+            )
+        return id
+    }
 
-// // HTTP handler to create a new resource
-// let createResourceHandler : HttpHandler =
-//     fun next ctx -> task {
-//         let! resource = ctx.BindJsonAsync<Resource>()
-//         let! id = insertResourceToDb resource
-//         return! json {| id = id |} next ctx
-//     }
+let postResourceHandler : HttpHandler =
+    fun next ctx ->
+        task {
+            let! resource = ctx.BindJsonAsync<Resource>()
+            let! id = postResource resource
+            return! json {| id = id |} next ctx
+        }

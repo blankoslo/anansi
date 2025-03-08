@@ -5,5 +5,17 @@ open Api.Resources.ResourceHandler
 
 let resourceRoutes : HttpHandler =
     choose [
-        GET >=> routef "/resources/%i" getResourceByIdHandler
+        GET >=> choose [
+            route "/resources" >=> getResourcesHandler
+            routef "/resources/%i" getResourceByIdHandler
+        ]
+
+        POST >=> route "/resources" >=> postResourceHandler
+
+        // PUT
+
+        // DELETE
     ]
+
+// få til de her fra bruno, så er jeg faktisk fornøyd!
+// så kan jeg begynne å se på kompetanse-greiene :))
