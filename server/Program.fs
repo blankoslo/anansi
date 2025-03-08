@@ -84,20 +84,9 @@ let runMigrations connectionString =
 // Web app
 // ---------------------------------
 
-let indexHandler (name : string) =
-    let greetings = sprintf "Hello %s, from Giraffe!" name
-    let model     = { Text = greetings }
-    let view      = Views.index model
-    htmlView view
 
 let webApp =
     choose [
-        GET >=>
-            choose [
-                route "/" >=> indexHandler "world"
-                routef "/hello/%s" indexHandler
-            ]
-
         subRoute "/api" resourceRoutes
         
         setStatusCode 404 >=> text "Invalid URL"
