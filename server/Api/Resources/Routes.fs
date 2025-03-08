@@ -10,12 +10,7 @@ let resourceRoutes : HttpHandler =
             routef "/resources/%i" getResourceByIdHandler
         ]
 
-        POST >=> route "/resources" >=> postResourceHandler
-
-        // PUT
-
         DELETE >=> routef "/resources/%i" deleteResourceHandler
+        POST >=> route "/resources" >=> postResourceHandler
+        PUT >=> routef "/resources/%i" updateResourceHandler
     ]
-
-// få til de her fra bruno, så er jeg faktisk fornøyd!
-// så kan jeg begynne å se på kompetanse-greiene :))

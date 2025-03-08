@@ -12,15 +12,15 @@ let connectDb () =
     let connectionString = System.Environment.GetEnvironmentVariable("CONNECTION_STRING")
     new NpgsqlConnection(connectionString)
 
-let handleGetNull r =
+let handleNullWithBox r =
     match box r with
     | null -> None
     | _ -> Some r
 
-let handleDeleteNull id =
-    match id with
+let handleZero r =
+    match r with
     | 0 -> None
-    | _ -> Some id
+    | _ -> Some r
 
 
 // GET
@@ -59,7 +59,7 @@ let getResourceById id =
                 {| Id = id |}
             )
 
-        return handleGetNull result
+        return handleNullWithBox result
     }
 
 let getResourceByIdHandler id : HttpHandler =
@@ -108,7 +108,34 @@ let postResourceHandler : HttpHandler =
         }
 
 
+// PUT
 
+let updateResource id resource =
+    task {
+        use conn = connectDb()
+        let! affectedRows = conn.ExecuteAsync(
+            "UPDATE resource
+             SET title = COALESCE(@Title, title),
+                 author = COALESCE(@Author, author)
+             WHERE id = @Id",
+            {| Id = id; Title = resource.title; Author = resource.author |}
+        )
+
+        return handleZero affectedRows
+    }
+
+let updateResourceHandler id : HttpHandler =
+    fun next ctx ->
+        task {
+            let! resource = ctx.BindJsonAsync<Resource>()
+            let! affectedRows = updateResource id resource
+            let handler =
+                match affectedRows with
+                | None -> notFound "Could not find resource with provided id."
+                | _ -> ok "Resource updated."
+
+            return! handler next ctx
+        }
 
 
 // DELETE
@@ -123,7 +150,7 @@ let deleteResource id =
             {| Id = id |}
         )
 
-        return handleDeleteNull deletedId        
+        return handleZero deletedId        
     }
 
 let deleteResourceHandler id : HttpHandler =
