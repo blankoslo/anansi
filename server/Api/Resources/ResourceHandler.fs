@@ -5,12 +5,8 @@ open Giraffe
 open Dapper
 open Npgsql
 open Api.StatusCodes
+open Api.Types
 
-type Resource = {
-    id: int
-    title: string
-    author: string
-}
 
 let connectDb () =
     let connectionString = System.Environment.GetEnvironmentVariable("CONNECTION_STRING")
