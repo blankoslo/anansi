@@ -14,7 +14,7 @@ let resourceRoutes : HttpHandler =
 
         // PUT
 
-        // DELETE
+        DELETE >=> routef "/resources/%i" deleteResourceHandler
     ]
 
 // få til de her fra bruno, så er jeg faktisk fornøyd!
