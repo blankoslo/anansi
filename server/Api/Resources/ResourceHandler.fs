@@ -1,12 +1,10 @@
 module Api.Resources.ResourceHandler
 
+
 open Giraffe
 open Dapper
 open Npgsql
-
-// For the time being, I cannot open Api.StatusCodes, for some reason. So I have these locally:
-let withStatusCode statusCode msg = setStatusCode statusCode >=> text msg
-let notFound = withStatusCode 404
+open Api.StatusCodes
 
 type Resource = {
     id: int
