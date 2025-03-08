@@ -80,23 +80,35 @@ let getResourceByIdHandler id : HttpHandler =
 let postResource resource =
     task {
         use conn = connectDb()
-        let! id =
-            conn.QuerySingleAsync<int>(
-                "INSERT INTO resource (title, author)
-                 VALUES (@Title, @Author)
-                 RETURNING id",
-                resource
-            )
-        return id
+        try
+            let! id =
+                conn.QuerySingleAsync<int>(
+                    "INSERT INTO resource (title, author)
+                    VALUES (@Title, @Author)
+                    RETURNING id",
+                    resource
+                )
+            return Ok id
+        with
+        | :? PostgresException as ex when ex.SqlState = "23505" ->
+            return Error "Entry with provided title already exists."
     }
 
 let postResourceHandler : HttpHandler =
     fun next ctx ->
         task {
             let! resource = ctx.BindJsonAsync<Resource>()
-            let! id = postResource resource
-            return! json {| id = id |} next ctx
+            let! maybeId = postResource resource
+            let handler =
+                match maybeId with
+                | Ok id -> json {| id = id |}
+                | Error message -> conflict message
+
+            return! handler next ctx
         }
+
+
+
 
 
 // DELETE
@@ -106,8 +118,8 @@ let deleteResource id =
         use conn = connectDb()
         let! deletedId = conn.QueryFirstOrDefaultAsync<int>(
             "DELETE FROM resource
-            WHERE id = @Id
-            RETURNING id",
+             WHERE id = @Id
+             RETURNING id",
             {| Id = id |}
         )
 
