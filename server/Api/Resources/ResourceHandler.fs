@@ -9,7 +9,7 @@ open Api.Types
 
 
 let connectDb () =
-    let connectionString = System.Environment.GetEnvironmentVariable("CONNECTION_STRING")
+    let connectionString = System.Environment.GetEnvironmentVariable "CONNECTION_STRING"
     new NpgsqlConnection(connectionString)
 
 let handleNullWithBox r =
@@ -25,7 +25,7 @@ let handleZero r =
 
 // GET
 
-let getResources =
+let getResources () =
     task {
         use conn = connectDb()
         let! result = conn.QueryAsync<Resource>(
@@ -39,7 +39,7 @@ let getResources =
 let getResourcesHandler : HttpHandler =
     fun next ctx ->
         task {
-            let! maybeResources = getResources
+            let! maybeResources = getResources ()
             let handler =
                 match maybeResources with
                 | [] -> notFound "Could not find any resources."
