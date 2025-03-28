@@ -1,9 +1,9 @@
-module Api.Resources.Routes
+module Api.Routers.ResourceRouter
 
 open Giraffe
-open Api.Resources.ResourceHandler
+open Api.Handlers.ResourceHandler
 
-let resourceRoutes : HttpHandler =
+let resourceRouter : HttpHandler =
     choose [
         GET >=> choose [
             route "/resources" >=> getResourcesHandler

@@ -1,5 +1,4 @@
-module Api.Resources.ResourceHandler
-
+module Api.Handlers.ResourceHandler
 
 open Giraffe
 open Dapper

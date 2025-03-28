@@ -9,76 +9,13 @@ open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
 open Giraffe
-open DbUp
 open dotenv.net
-
-open Api.Resources.Routes
+open Api.Routers.ResourceRouter
+open Database.Database
 
 DotEnv.Load()
 
-let connectionString = System.Environment.GetEnvironmentVariable("CONNECTION_STRING")
-
-// ---------------------------------
-// Models
-// ---------------------------------
-
-type Message =
-    {
-        Text : string
-    }
-
-// ---------------------------------
-// Views
-// ---------------------------------
-
-module Views =
-    open Giraffe.ViewEngine
-
-    let layout (content: XmlNode list) =
-        html [] [
-            head [] [
-                title []  [ encodedText "server" ]
-                link [ _rel  "stylesheet"
-                       _type "text/css"
-                       _href "/main.css" ]
-            ]
-            body [] content
-        ]
-
-    let partial () =
-        h1 [] [ encodedText "server" ]
-
-    let index (model : Message) =
-        [
-            partial()
-            p [] [ encodedText model.Text ]
-        ] |> layout
-
-// ---------------------------------
-// Db stuff
-// ---------------------------------
-
-let runMigrations connectionString =
-    try 
-        EnsureDatabase.For.PostgresqlDatabase(connectionString) // If Db doesn't exist, this line should create it
-    with 
-    | ex -> // In case it's not ready for connections, try again after 5 seconds
-        printfn "Could not connect to database, retrying: %s" ex.Message
-        System.Threading.Thread.Sleep(5000)
-        EnsureDatabase.For.PostgresqlDatabase(connectionString)
-
-    let upgrader =
-        DeployChanges.To
-            .PostgresqlDatabase(connectionString)
-            .WithScriptsFromFileSystem("Migrations")
-            .WithTransactionPerScript() // kjører alle migrasjonene i separate transactions, så 002 kan feile men vi gunner på med 003
-            .Build()
-
-    let result = upgrader.PerformUpgrade()
-    if result.Successful then
-        printfn "✅ Migrations ran successfully"
-    else // kan også legge på .LogToConsole() før .Build() om vi ønsker
-        failwithf "❌ Migration failed: %s" result.Error.Message
+let connectionString = System.Environment.GetEnvironmentVariable "CONNECTION_STRING"
 
 // ---------------------------------
 // Web app
@@ -87,8 +24,8 @@ let runMigrations connectionString =
 
 let webApp =
     choose [
-        subRoute "/api" resourceRoutes
-        
+        subRoute "/api" resourceRouter
+
         setStatusCode 404 >=> text "Invalid URL"
     ]
 
@@ -124,7 +61,7 @@ let configureApp (app : IApplicationBuilder) =
             .UseHttpsRedirection())
         .UseCors(configureCors)
         .UseStaticFiles()
-        .UseGiraffe(webApp)
+        .UseGiraffe webApp
 
 let configureServices (services : IServiceCollection) =
     services.AddCors()    |> ignore
@@ -148,7 +85,7 @@ let main args =
                     .UseWebRoot(webRoot)
                     .Configure(Action<IApplicationBuilder> configureApp)
                     .ConfigureServices(configureServices)
-                    .ConfigureLogging(configureLogging)
+                    .ConfigureLogging configureLogging
                     |> ignore)
         .Build()
         .Run()
